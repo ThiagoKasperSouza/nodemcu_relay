@@ -20,13 +20,16 @@ IPAddress subnet(255, 255, 255, 0);    // Máscara de sub-rede
 
 
 void loadEnv();
+void devEnv(ssid, password);
 void serverSetup();
+
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(relay1, OUTPUT);
   loadEnv();
+  //devEnv("your_ssid", "your_password");
   serverSetup();
   Serial.println("Hello world");
 
@@ -54,7 +57,27 @@ void serverSetup() {
   });
 
   server.begin();
+  Serial.println("Server configurado!");
 }
+
+void devEnv(String ssid,String password) {
+  // Configurar o IP estático
+  if (!WiFi.config(local_IP, gateway, subnet)) {
+    Serial.println("Falha ao configurar IP estático");
+  }
+
+
+  // Conecta à rede Wi-Fi
+  WiFi.begin(ssid.c_str(), password.c_str());
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+  Serial.println("Conectado!");
+
+  Serial.print("Endereço IP: ");
+  Serial.println(WiFi.localIP());
+};
 
 void loadEnv() {
 
