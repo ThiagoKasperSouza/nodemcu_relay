@@ -20,7 +20,7 @@ IPAddress subnet(255, 255, 255, 0);    // Máscara de sub-rede
 
 
 void loadEnv();
-void setupServer();
+void serverSetup();
 
 void setup() {
   // put your setup code here, to run once:
@@ -90,7 +90,7 @@ void loadEnv() {
     }
   }
 
-  file.close()
+  file.close();
 
   // Configurar o IP estático
   if (!WiFi.config(local_IP, gateway, subnet)) {
