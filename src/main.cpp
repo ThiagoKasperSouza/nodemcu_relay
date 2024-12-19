@@ -1,8 +1,7 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include "config.h"
-#include <FS.h> // Inclua a biblioteca SPIFFS
+#include <LittleFS.h> 
 
 String ssid;
 String password;
@@ -43,13 +42,13 @@ void loop() {
 void serverSetup() {
    // Defina as rotas do servidor
   server.on("/ligar", []() {
-    digitalWrite(relayPin, HIGH);
+    digitalWrite(relay1, HIGH);
     server.send(200, "text/plain", "Relé ligado");
 
   });
 
   server.on("/desligar", []() {
-    digitalWrite(relayPin, LOW);
+    digitalWrite(relay1, LOW);
     server.send(200, "text/plain", "Relé desligado");
 
   });
@@ -58,26 +57,26 @@ void serverSetup() {
 }
 
 void loadEnv() {
-  // Inicie o SPIFFS
-  if (!SPIFFS.begin()) {
-    Serial.println("Erro ao montar o sistema de arquivos");
-    return;
 
+  // Inicia o LittleFS
+  if (!LittleFS.begin()) {
+    Serial.println("Erro ao montar o sistema de arquivos LittleFS");
+    return;
   }
 
   // Abrir e ler o arquivo .env
-  File file = SPIFFS.open("/.env", "r"); // Abre o arquivo para leitura
+  File file = LittleFS.open("/.env", "r"); // Abre o arquivo para leitura
+
   if (!file) {
     Serial.println("Erro ao abrir o arquivo .env");
     return;
-
   }
 
   // Ler o conteúdo do arquivo
   while (file.available()) {
     String line = file.readStringUntil('\n'); // Lê até a nova linha
     int separatorIndex = line.indexOf('=');
-
+    //pega key e value separados
     if (separatorIndex != -1) {
       String key = line.substring(0, separatorIndex);
       String value = line.substring(separatorIndex + 1);
@@ -90,7 +89,8 @@ void loadEnv() {
       }
     }
   }
-  file.close(); // Fecha o arquivo
+
+  file.close()
 
   // Configurar o IP estático
   if (!WiFi.config(local_IP, gateway, subnet)) {
@@ -98,7 +98,7 @@ void loadEnv() {
   }
 
 
-  // Conecte-se à rede Wi-Fi
+  // Conecta à rede Wi-Fi
   WiFi.begin(ssid.c_str(), password.c_str());
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
